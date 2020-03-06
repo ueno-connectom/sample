@@ -1,0 +1,246 @@
+service: 
+  name: school-fc-monthly-report
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  region: ap-northeast-1
+  timeout: 300
+  profile: default
+  stage: ${opt:stage, self:custom.defaultStage}
+  logRetentionInDays: 180
+  deploymentBucket:
+    name: mycode-serverless-deploys
+  iamRoleStatements:
+    - Effect: Allow
+      Action: "s3:*"
+      Resource: "*"
+    - Effect: Allow
+      Action: 
+        - "athena:*"
+      Resource: 
+        - "*"
+    - Effect: Allow
+      Action: 
+        - "glue:CreateDatabase"
+        - "glue:DeleteDatabase"
+        - "glue:GetDatabase"
+        - "glue:GetDatabases"
+        - "glue:UpdateDatabase"
+        - "glue:CreateTable"
+        - "glue:DeleteTable"
+        - "glue:BatchDeleteTable"
+        - "glue:UpdateTable"
+        - "glue:GetTable"
+        - "glue:GetTables"
+        - "glue:BatchCreatePartition"
+        - "glue:CreatePartition"
+        - "glue:DeletePartition"
+        - "glue:BatchDeletePartition"
+        - "glue:UpdatePartition"
+        - "glue:GetPartition"
+        - "glue:GetPartitions"
+        - "glue:BatchGetPartition"
+      Resource: 
+        - "*"
+    - Effect: Allow
+      Action: 
+        - "s3:GetBucketLocation"
+        - "s3:GetObject"
+        - "s3:ListBucket"
+        - "s3:ListBucketMultipartUploads"
+        - "s3:ListMultipartUploadParts"
+        - "s3:AbortMultipartUpload"
+        - "s3:CreateBucket"
+        - "s3:PutObject"
+      Resource: 
+        - "arn:aws:s3:::aws-athena-query-results-*"
+    - Effect: Allow
+      Action: 
+        - "s3:GetObject"
+        - "s3:ListBucket"
+      Resource: 
+        - "arn:aws:s3:::athena-examples*"
+    - Effect: Allow
+      Action: 
+        - "s3:ListBucket"
+        - "s3:GetBucketLocation"
+        - "s3:ListAllMyBuckets"
+      Resource: 
+        - "*"
+    - Effect: Allow
+      Action: 
+        - "sns:ListTopics"
+        - "sns:GetTopicAttributes"
+      Resource: 
+        - "*"
+    - Effect: Allow
+      Action: 
+        - "cloudwatch:PutMetricAlarm"
+        - "cloudwatch:DescribeAlarms"
+        - "cloudwatch:DeleteAlarms"
+      Resource: 
+        - "*"
+    - Action: 
+        - "logs:*"
+      Effect: Allow
+      Resource: "*"
+    - Effect: Allow
+      Action: 
+        - "logs:CreateLogGroup"
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
+      Resource: "*"
+    - Effect: Allow
+      Action: 
+        - "logs:CreateLogGroup"
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
+        - "ec2:CreateNetworkInterface"
+        - "ec2:DescribeNetworkInterfaces"
+        - "ec2:DeleteNetworkInterface"
+      Resource: "*"
+    - Effect: Allow
+      Action: "logs:CreateLogGroup"
+      Resource: "arn:aws:logs:ap-northeast-1:999999999999:*"
+    - Effect: Allow
+      Action: 
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
+      Resource: 
+        - "arn:aws:logs:ap-northeast-1:999999999999:log-group:/aws/lambda/mycode-school-fc-report:*"
+    - Effect: Allow
+      Action: 
+        - "lambda:InvokeFunction"
+      Resource: "*"
+
+package:
+  exclude:
+    - .eslintrc.json
+    - localtest.js
+    - _make_zip.cmd
+    - _update_lambda.cmd
+    - _update_zip.cmd
+    - typings
+    - typings/**
+    - tmp
+    - tmp/**
+
+custom:
+  defaultStage: dev
+  envs:
+    monthly-report:
+      common: &common
+        S3_BUCKET_RESTRICTION_PATTERN: school
+        S3_EXCEL_CLASS_INFO: classrooms.xlsx
+        S3_EXCEL_SCHOOL_DATA: school.xlsx
+        S3_EXCEL_GA_DATA: ga.xlsx
+        S3_EXCEL_CODE_VARIANTS: codes.xlsx
+        S3_EXCEL_REPORT_TEMPLATE: template.xlsx
+        S3_EXCEL_SUGGESTIONS: suggestions.xlsx
+        S3_ATHENA_OUTPUT: query/
+        S3_REPORTS_DST_SV: report/sv/
+        S3_REPORTS_DST_FC: report/fc/
+        EXCEL_SHEETNAME_TEMPLATE: Sheet1
+        EXCEL_SHEETNAME_CLASS_INFO: list
+        EXCEL_SHEETNAME_SCHOOL_DATA: 外部データ
+        EXCEL_SHEETNAME_GA_DATA: ga
+        EXCEL_SHEETNAME_CODE_VARIANTS: codes
+        EXCEL_SHEETNAME_SUGGESTIONS: suggestions
+        EXCEL_CELLHEADER_CODE: 教室コード
+        EXCEL_CELLHEADER_NAME: 教室名（正式）
+        EXCEL_CELLHEADER_FROM_DATE: 開始
+        EXCEL_CELLHEADER_TO_DATE: 終了
+        EXCEL_CELLHEADER_FOLDER_1: SVフォルダ条件
+        EXCEL_CELLHEADER_FOLDER_2: FCフォルダ条件
+        EXCEL_CELLHEADER_RERORT_TITLE: 教室名（レポートタイトル）
+        EXCEL_CELLHEADER_PREFECTURE: 都道府県
+        EXCEL_CELLHEADER_GA_CODE: 教室コード
+        EXCEL_CELLHEADER_GA_DATE: 日付
+        EXCEL_CELLHEADER_GA_SESSIONS: クリック数（ユニークページビュー）
+        EXCEL_CELLHEADER_SUGGESTIONS_PATTERN: pattern
+        EXCEL_CELLHEADER_SUGGESTIONS_TEXT: text
+        EXCEL_DEFINITION_SCHOOL: コード,見学,ナビ,資料請求,新規,セッション,タップ数,体験,市区町村
+        S3_MAX_KEYS: 1000000
+        S3_CONTENT_ENCODING: UTF-8
+        LOCAL_FILE_STORE: /tmp/
+        LAMBDA_SUB_REDSHIFT: mycode-${self:provider.stage}-school-fc-monthly-report-redshift
+        TZ: Asia/Tokyo
+      dev:
+        <<: *common
+        S3_BASE: s3://stg-school-f/school/f-report/000000/
+        LOG_LEVEL: trace
+        PARALLEL_EXECUTE_LIMIT: 10
+        ATHENA_QUERY_TIMEOUT: 120
+      stg:
+        <<: *common
+        S3_BASE: s3://stg-school-f/school/f-report/000000/
+        LOG_LEVEL: debug
+        PARALLEL_EXECUTE_LIMIT: 10
+        ATHENA_QUERY_TIMEOUT: 120
+      prod:
+        <<: *common
+        S3_BASE: s3:/prod-school-f/school/f-report/000000/
+        LOG_LEVEL: info
+        PARALLEL_EXECUTE_LIMIT: 10
+        ATHENA_QUERY_TIMEOUT: 60
+
+    monthly-report-redshift:
+      dev:
+        REDSHIFT_HOSTNAME: adservice.hoge.ap-northeast-1.redshift.amazonaws.com
+        REDSHIFT_PORT: 5439
+        REDSHIFT_USER: userid
+        REDSHIFT_PASSWORD: 1234
+        REDSHIFT_DATABASE: adservice
+        TZ: Asia/Tokyo
+        LOG_ON: true
+      stg:
+        REDSHIFT_HOSTNAME: adservice.hoge.ap-northeast-1.redshift.amazonaws.com
+        REDSHIFT_PORT: 5439
+        REDSHIFT_USER: userid
+        REDSHIFT_PASSWORD: 1234
+        REDSHIFT_DATABASE: adservice
+        TZ: Asia/Tokyo
+        LOG_ON: true
+      prod:
+        REDSHIFT_HOSTNAME: adservice.hoge.ap-northeast-1.redshift.amazonaws.com
+        REDSHIFT_PORT: 5439
+        REDSHIFT_USER: userid
+        REDSHIFT_PASSWORD: 1234
+        REDSHIFT_DATABASE: adservice
+        TZ: Asia/Tokyo
+        LOG_ON: false
+
+  prune:
+    automatic: true
+    number: 5
+
+  prefix:
+    dev: _dev
+    stg: _stg
+    prod:
+
+functions:
+  monthly-report:
+    handler: src/index.handler
+    name: mycode-${self:provider.stage}-school-fc-monthly-report
+    description: mycode Schoolレポート メイン
+    environment: ${self:custom.envs.monthly-report.${self:provider.stage}}
+    memorySize: 768
+    timeout: 600
+  monthly-report-redshift:
+    handler: src/redshift.handler
+    name: mycode-${self:provider.stage}-school-fc-monthly-report-redshift
+    description: mycode Schoolレポート adService-Log
+    environment: ${self:custom.envs.monthly-report-redshift.${self:provider.stage}}
+    memorySize: 128
+    timeout: 60
+    vpc:
+      securityGroupIds:
+        - sg-23567745 # dummy
+      subnetIds:
+        - subnet-wh5jw5j # dummy

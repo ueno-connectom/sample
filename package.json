@@ -1,0 +1,60 @@
+{
+  "dependencies": {
+    "aa": "^0.1.40",
+    "config": "^3.1.0",
+    "executors": "^0.0.6",
+    "js-yaml": "^3.13.1",
+    "log4js": "^5.2.2",
+    "pg": "^7.11.0",
+    "xlsx-populate": "^1.19.1"
+  },
+  "name": "test",
+  "version": "1.0.0",
+  "main": "./src/test.js",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "@types/chai": "^4.2.5",
+    "@types/config": "^0.0.34",
+    "@types/js-yaml": "^3.12.1",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.11.1",
+    "@types/pg": "^7.11.1",
+    "@typescript-eslint/eslint-plugin": "^2.6.1",
+    "@typescript-eslint/parser": "^2.6.1",
+    "aws-sdk": "^2.551.0",
+    "chai": "^4.2.0",
+    "eslint": "^6.0.1",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "husky": "^3.0.9",
+    "lint-staged": "^9.4.2",
+    "mocha": "^6.2.2",
+    "prettier": "^1.19.1",
+    "serverless": "^1.57.0",
+    "serverless-plugin-typescript": "^1.1.9",
+    "serverless-prune-plugin": "^1.4.1",
+    "ts-node": "^8.5.0",
+    "typescript": "^3.6.4"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "tabWidth": 4,
+    "useTabs": false,
+    "singleQuote": true,
+    "semi": true,
+    "trailingComma": "es5"
+  },
+  "scripts": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "git add"
+    ]
+  }
+}

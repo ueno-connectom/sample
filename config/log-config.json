@@ -1,0 +1,19 @@
+{
+    "appenders": {
+        "recording": {
+            "type": "recording"
+        },
+        "console": {
+            "type": "console"
+        }
+    },
+    "categories": {
+        "default": {
+            "appenders": [
+                "recording",
+                "console"
+            ],
+            "level": "INFO"
+        }
+    }
+}

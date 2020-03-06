@@ -1,0 +1,89 @@
+{
+    "rules": {
+        "no-constant-condition": "warn",
+        "valid-jsdoc": [
+            2,
+            {
+                "requireReturn": false
+            }
+        ],
+        "no-console": 0,
+        "no-alert": 0,
+        "no-debugger": 1,
+        "no-regex-spaces": 0,
+        "quotes": [
+            1,
+            "single"
+        ],
+        "eqeqeq": 2,
+        "no-multi-spaces": 0,
+        "dot-notation": 0,
+        "strict": 0,
+        "semi": [
+            2,
+            "always"
+        ],
+        "no-var": 2,
+        "prefer-const": 2,
+        "comma-style": [
+            2,
+            "last"
+        ],
+        "comma-spacing": 0,
+        "indent": [
+            1,
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "key-spacing": [
+            0,
+            {
+                "beforeColon": false,
+                "afterColon": true,
+                "align": "colon"
+            }
+        ],
+        "no-multiple-empty-lines": [
+            1,
+            {
+                "max": 1
+            }
+        ],
+        "no-spaced-func": 2,
+        "no-redeclare": 1,
+        "keyword-spacing": 2,
+        "space-before-blocks": 2,
+        "no-unused-vars": "warn",
+        "no-prototype-builtins": "error",
+        "prettier/prettier": [
+            "error",
+            {
+                "printWidth": 120,      // 行の最大長 (80)
+                "tabWidth": 4,          // 1 インデントあたりの空白数 (2)
+                "useTabs": false,       // インデントにタブを使用する (false)
+                "semi": true,           // 式の最後にセミコロンを付加する (true)
+                "singleQuote": true,    // 引用符としてシングルクオートを使用する (false)
+                "trailingComma": "es5"  // 
+            }
+        ]
+    },
+    "parserOptions": {
+        "ecmaVersion": 2019,
+        "sourceType": "module"
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:prettier/recommended"
+    ],
+    "env": {
+        "es6": true,
+        "browser": true,
+        "node": true
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "parser": "@typescript-eslint/parser"
+}
